@@ -242,6 +242,14 @@ impl PublishBuilder {
         f(&mut self.packet.properties);
     }
 
+    /// Send publish packet with user defined qos
+    /// Caller is responsible for inflight QoS1, and QoS2
+    #[cfg(feature = "pass-control")]
+    pub fn send_packet(mut self, qos: QoS) -> Result<(), SendPacketError> {
+        self.packet.qos = qos;
+        self.send_at_most_once()
+    }
+
     /// Send publish packet with QoS 0
     pub fn send_at_most_once(self) -> Result<(), SendPacketError> {
         let packet = self.packet;
