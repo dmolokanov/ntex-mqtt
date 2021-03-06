@@ -16,6 +16,8 @@ pub enum ControlMessage<E> {
     Closed(Closed),
     Error(Error<E>),
     ProtocolError(ProtocolError),
+    #[cfg(feature = "pass-control")]
+    PublishAck(PublishAck),
 }
 
 /// Control message handling result
@@ -26,6 +28,11 @@ pub struct ControlResult {
 }
 
 impl<E> ControlMessage<E> {
+    #[cfg(feature = "pass-control")]
+    pub(super) fn pub_ack(pkt: codec::PublishAck) -> Self {
+        ControlMessage::PublishAck(PublishAck(pkt))
+    }
+
     pub(super) fn auth(pkt: codec::Auth) -> Self {
         ControlMessage::Auth(Auth(pkt))
     }
@@ -65,6 +72,25 @@ impl<E> ControlMessage<E> {
         ControlResult { packet: Some(codec::Packet::Disconnect(pkt)), disconnect: true }
     }
 }
+
+#[cfg(feature = "pass-control")]
+ #[derive(Debug)]
+ pub struct PublishAck(codec::PublishAck);
+
+ #[cfg(feature = "pass-control")]
+ impl PublishAck {
+     /// Returns reference to publish ack packet
+     pub fn packet(&self) -> &codec::PublishAck {
+         &self.0
+     }
+
+     pub fn ack(self) -> ControlResult {
+         ControlResult {
+             packet: None,
+             disconnect: false,
+         }
+     }
+ }
 
 #[derive(Debug)]
 pub struct Auth(codec::Auth);

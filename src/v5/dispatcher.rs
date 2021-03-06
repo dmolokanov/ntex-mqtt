@@ -230,6 +230,14 @@ where
                 })
             }
             DispatchItem::Item(codec::Packet::PublishAck(packet)) => {
+
+                #[cfg(feature = "pass-control")]
+                return Either::Right(Either::Right(ControlResponse::new(
+                    ControlMessage::pub_ack(packet),
+                    &self.inner,
+                )));
+
+                #[cfg(not(feature = "pass-control"))]
                 if let Err(err) = self.sink.pkt_ack(Ack::Publish(packet)) {
                     Either::Right(Either::Right(ControlResponse::new(
                         ControlMessage::proto_error(err),

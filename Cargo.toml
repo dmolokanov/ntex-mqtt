@@ -11,6 +11,9 @@ license = "MIT"
 exclude = [".gitignore", ".travis.yml", ".cargo/config"]
 edition = "2018"
 
+[features]
+pass-control = []
+
 [dependencies]
 ntex = { version = "0.3.16", default-features = false }
 bitflags = "1.2.1"
